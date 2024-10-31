@@ -64,6 +64,21 @@ Setup vmid0. Setting this regs:
 * MMHUB
 * GFXHUB
 
+The driver sets:
+This looks to be only gart? Only system pages to kernel memory?
+`regGCVM_CONTEXT0_CNTL` = 0x1fffe01 (PAGE_TABLE_DEPTH=0, INTERRUPTS ON FAULT, ENABLE_CONTEXT=1)
+`regGCVM_CONTEXT0_PAGE_TABLE_BASE_ADDR` = 0x5feb00001
+`regGCVM_CONTEXT0_PAGE_TABLE_START_ADDR` = 0x7fff00000
+`regGCVM_CONTEXT0_PAGE_TABLE_END_ADDR` = 0x7fff1ffff
+
+vmid8:
+`regGCVM_CONTEXT8_CNTL` = 0x1fffe07 (PAGE_TABLE_DEPTH=3, INTERRUPTS ON FAULT, ENABLE_CONTEXT=1)
+`regGCVM_CONTEXT8_PAGE_TABLE_BASE_ADDR` = 0x5feaf3001
+`regGCVM_CONTEXT8_PAGE_TABLE_START_ADDR` = 0x0
+`regGCVM_CONTEXT8_PAGE_TABLE_END_ADDR` = 0xfffffffff
+
+Saw some `regGCUTC_GPUVA_VMID_TRANSLATION_ASSIST_REQUEST_*`. Wish they could debug VM (but I could't make them work)...
+
 ### MMHUB
 Serving clients:
 ```
