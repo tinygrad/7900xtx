@@ -145,3 +145,21 @@ Serving clients:
 ```
 
 Collect faults status: `GCVM_L2_PROTECTION_FAULT_STATUS`
+
+
+## GFX
+
+LDS = private
+Scratch = shared
+CSB = clear state block
+
+```c
+/*
+* Configure apertures:
+* LDS:         0x60000000'00000000 - 0x60000001'00000000 (4GB)
+* Scratch:     0x60000001'00000000 - 0x60000002'00000000 (4GB)
+* GPUVM:       0x60010000'00000000 - 0x60020000'00000000 (1TB)
+*/
+sh_mem_bases = (LDS_APP_BASE << SH_MEM_BASES__SHARED_BASE__SHIFT) |
+        SCRATCH_APP_BASE;
+```
