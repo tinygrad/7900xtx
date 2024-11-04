@@ -225,3 +225,15 @@ enum AMDGPU_NAVI10_DOORBELL_ASSIGNMENT {
 ```
 
 That's how they call in kernel: `WDOORBELL64(ring->doorbell_index, ring->wptr);`. That's just `atomic64_set((atomic64_t *)(adev->doorbell.cpu_addr + index), v);`. `doorbell.cpu_addr` is likely to be a MMIO to bar2.
+
+
+## MEC
+
+mec0 is me1 and so on (`ring->me = mec + 1;`).
+
+For gfx110000
+```
+adev->gfx.mec.num_mec = 2;
+adev->gfx.mec.num_pipe_per_mec = 4;
+adev->gfx.mec.num_queue_per_pipe = 4;
+```
