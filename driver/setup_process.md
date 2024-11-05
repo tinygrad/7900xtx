@@ -237,3 +237,9 @@ adev->gfx.mec.num_mec = 2;
 adev->gfx.mec.num_pipe_per_mec = 4;
 adev->gfx.mec.num_queue_per_pipe = 4;
 ```
+
+## MES
+
+Tried to enable kiq path (not mes_kiq) in the amdgpu driver on gfx11, for me it failed with queue not responding...
+
+MES1 is MES KIQ, runs on me=3, ring=1. This is the first queue to run on gfx. Use it to add MES queue and use MES queue to add other queues.
