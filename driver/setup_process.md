@@ -2,7 +2,15 @@
 
 Load with type: AMDGPU_FW_LOAD_PSP
 
+### IH
+
+Interrupt rings should setup before psp can be loaded. Not setting up this and VMM properlly hangs the bootloader!!!!
+The driver setups ih, ih1 and soft_ih. Driver can enable interrupts for some events (like ThermalAlert).
+
 ### PSP
+
+Loads KDB, SYS_DRV, SOS using bootloader. Requires VMM and IH. (TODO: Add info about TA, required?)
+
 First thing that loads is PSP. 7900xtx uses `psp13_0_0`. Loads `sOS`, `TA`. Both sos and ta contains several fw blobs.
 Can send requests to sOS with ring (ring entry: `psp_gfx_rb_frame`, commands: `psp_gfx_cmd_resp`).
 
@@ -224,7 +232,7 @@ enum AMDGPU_NAVI10_DOORBELL_ASSIGNMENT {
 };
 ```
 
-That's how they call in kernel: `WDOORBELL64(ring->doorbell_index, ring->wptr);`. That's just `atomic64_set((atomic64_t *)(adev->doorbell.cpu_addr + index), v);`. `doorbell.cpu_addr` is likely to be a MMIO to bar2.
+That's how they call in kernel: `WDOORBELL64(ring->doorbell_index, ring->wptr);`. That's just `atomic64_set((atomic64_t *)(adev->doorbell.cpu_addr + index), v);`. `doorbell.cpu_addr` is likely to be a MMIO to bar2. Using AMDGPU_NAVI10_DOORBELL_ASSIGNMENT every doorbell index is bitshifted `<< 1` when passed to the gpu. So, to write doorbell on cpu`(uint64_t*)(bar2)[index/2] = val;`
 
 
 ## MEC
@@ -237,6 +245,17 @@ adev->gfx.mec.num_mec = 2;
 adev->gfx.mec.num_pipe_per_mec = 4;
 adev->gfx.mec.num_queue_per_pipe = 4;
 ```
+
+## Blocks to init
+
+[  399.579973] [drm] add ip block number 0 <soc21_common>
+[  399.579978] [drm] add ip block number 1 <gmc_v11_0>
+[  399.579981] [drm] add ip block number 2 <ih_v6_0>
+[  399.579984] [drm] add ip block number 3 <psp>
+[  399.579987] [drm] add ip block number 4 <smu>
+[  399.579997] [drm] add ip block number 5 <gfx_v11_0>
+[  399.579999] [drm] add ip block number 6 <sdma_v6_0>
+[  399.580002] [drm] add ip block number 7 <mes_v11_0>
 
 ## MES
 
