@@ -134,3 +134,31 @@ Collect faults status: `GCVM_L2_PROTECTION_FAULT_STATUS`
 `regGCVM_CONTEXT0_PAGE_TABLE_START_ADDR_LO32` = PT aperture start.
 `regGCVM_CONTEXT0_PAGE_TABLE_END_ADDR_LO32` = PT aperture end
 `regGCVM_CONTEXT0_CNTL` = vm controls
+
+
+## TLB
+
+Flag `AMDGPU_PTE_FRAG(frag)` on pte allows to allocate one entry for 1 << (12 + frag) in tlb.
+Performance critical flag.
+
+```
+The MC L1 TLB supports variable sized pages, based on a fragment
+field in the PTE. When this field is set to a non-zero value, page
+granularity is increased from 4KB to (1 << (12 + frag)). The PTE
+flags are considered valid for all PTEs within the fragment range
+and corresponding mappings are assumed to be physically contiguous.
+
+The L1 TLB can store a single PTE for the whole fragment,
+significantly increasing the space available for translation
+caching. This leads to large improvements in throughput when the
+TLB is under pressure.
+
+The L2 TLB distributes small and large fragments into two
+asymmetric partitions. The large fragment cache is significantly
+larger. Thus, we try to use large fragments wherever possible.
+Userspace can support this by aligning virtual base address and
+allocation size to the fragment size.
+
+Starting with Vega10 the fragment size only controls the L1. The L2
+is now directly feed with small/huge/giant pages from the walker.
+```
