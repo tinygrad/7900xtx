@@ -1,18 +1,38 @@
-## FW
-
-Load with type: AMDGPU_FW_LOAD_PSP
-
 ### IH
 
-Interrupt rings should setup before psp can be loaded. Not setting up this and VMM properlly hangs the bootloader!!!!
 The driver setups ih, ih1 and soft_ih. Driver can enable interrupts for some events (like ThermalAlert).
 
 ### PSP
 
-Loads KDB, SYS_DRV, SOS using bootloader. Requires VMM and IH. (TODO: Add info about TA, required?)
+Loads KDB, SYS_DRV, sOS using bootloader. Sets up a ring to talk with sOS (ring entry: `psp_gfx_rb_frame`, commands: `psp_gfx_cmd_resp`).
+TMR is allocated using ring. FW blobs is loaded into TMR.
 
-First thing that loads is PSP. 7900xtx uses `psp13_0_0`. Loads `sOS`, `TA`. Both sos and ta contains several fw blobs.
-Can send requests to sOS with ring (ring entry: `psp_gfx_rb_frame`, commands: `psp_gfx_cmd_resp`).
+```
+[ 2222.309993] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_PFP
+[ 2222.313750] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_ME
+[ 2222.318316] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_MEC
+[ 2222.323748] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_PFP_P0_STACK
+[ 2222.326747] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_PFP_P1_STACK
+[ 2222.329750] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_ME_P0_STACK
+[ 2222.332748] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_ME_P1_STACK
+[ 2222.335751] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_MEC_P0_STACK
+[ 2222.338747] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_MEC_P1_STACK
+[ 2222.341749] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_MEC_P2_STACK
+[ 2222.344748] amdgpu 0000:83:00.0: amdgpu: Loading firmware RS64_MEC_P3_STACK
+[ 2222.347752] amdgpu 0000:83:00.0: amdgpu: Loading firmware CP_MES
+[ 2222.351857] amdgpu 0000:83:00.0: amdgpu: Loading firmware CP_MES_DATA
+[ 2222.355429] amdgpu 0000:83:00.0: amdgpu: Loading firmware CP_MES_KIQ
+[ 2222.359102] amdgpu 0000:83:00.0: amdgpu: Loading firmware CP_MES_KIQ_DATA
+[ 2222.362858] amdgpu 0000:83:00.0: amdgpu: Loading firmware IMU_I
+[ 2222.366751] amdgpu 0000:83:00.0: amdgpu: Loading firmware IMU_D
+[ 2222.370211] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_RESTORE_LIST_GPM_MEM
+[ 2222.373211] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_RESTORE_LIST_SRM_MEM
+[ 2222.376534] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_IRAM
+[ 2222.380101] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_DRAM
+[ 2222.383316] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_P
+[ 2222.386316] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_V
+[ 2222.389428] amdgpu 0000:83:00.0: amdgpu: Loading firmware RLC_G
+```
 
 ## VM
 
