@@ -71,3 +71,63 @@ AMD HDCP Application
 AMD DTM Application
 AMD RAS Application
 ```
+
+## Inside the SOS
+
+The `psp_13_0_0_sos.bin` file contains several parts.
+
+```
+am.PSP_FW_TYPE_PSP_SYS_DRV, 0x100-0x26890, 0x26790
+am.PSP_FW_TYPE_PSP_SOS, 0x26890-0x3ec10, 0x18380
+4, 0x3ec10-0x3f510, 0x900
+am.PSP_FW_TYPE_PSP_KDB, 0x3f510-0x40c10, 0x1700
+5, 0x40c10-0x40eb0, 0x2a0
+6, 0x40eb0-0x41810, 0x960
+```
+
+or for psp_13_0_7_sos.bin with hash 9db47a0c224501f74a9dc28818f8b0fb230aec48
+
+```
+am.PSP_FW_TYPE_PSP_SYS_DRV, 0x100-0x22890, 0x22790
+am.PSP_FW_TYPE_PSP_SOS, 0x22890-0x3ac00, 0x18370
+4, 0x3ac00-0x3b500, 0x900
+am.PSP_FW_TYPE_PSP_KDB, 0x3b500-0x3c810, 0x1310
+5, 0x3c810-0x3cab0, 0x2a0
+```
+
+The SOS parses the GFX commands, used to load second stage firmware
+
+```
+GFX_CMD_ID_LOAD_TA = 1
+GFX_CMD_ID_UNLOAD_TA = 2
+GFX_CMD_ID_INVOKE_CMD = 3
+GFX_CMD_ID_LOAD_ASD = 4
+GFX_CMD_ID_SETUP_TMR = 5
+GFX_CMD_ID_LOAD_IP_FW = 6
+GFX_CMD_ID_DESTROY_TMR = 7
+GFX_CMD_ID_SAVE_RESTORE = 8
+GFX_CMD_ID_SETUP_VMR = 9
+GFX_CMD_ID_DESTROY_VMR = 10
+GFX_CMD_ID_PROG_REG = 11
+GFX_CMD_ID_GET_FW_ATTESTATION = 15
+GFX_CMD_ID_LOAD_TOC = 32
+GFX_CMD_ID_AUTOLOAD_RLC = 33
+GFX_CMD_ID_BOOT_CFG = 34
+GFX_CMD_ID_SRIOV_SPATIAL_PART = 39
+```
+
+The SOS itself is pretty much just a stub, making "syscalls" with interrupt 0xf2 into the SYS_DRV. From the SOS firmware @ 0x1466c
+
+```
+LOAD_IP_FW = 6 -> 0x1007
+DESTROY_TMR = 7 -> 0x101e
+SAVE_RESTORE = 8 -> 0x1024
+SETUP_VMR = 9 -> 0x1045
+DESTROY_VMR = 10 -> 0x1046
+```
+
+Then there's a syscall parser @ 0x1aa10 in the SYS_DRV
+
+
+
+
