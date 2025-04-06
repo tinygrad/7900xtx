@@ -13,8 +13,7 @@ typedef long unsigned int size_t;
 extern "C" __attribute__((device)) __attribute__((const)) size_t __ockl_get_group_id(unsigned int);
 extern "C" __attribute__((global))void test(float *a) {{
   int gid = __ockl_get_group_id(0);
-  //int loop_len = (gid==4) ? 100000 : 100;
-  int loop_len = (gid==4) ? 100000 : 100;
+  int loop_len = (gid==0) ? 1000000 : 100;
 
   int gidmod = gid%8;
   float inp = a[gidmod];

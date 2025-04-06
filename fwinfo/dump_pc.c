@@ -34,7 +34,7 @@
 #define MEC_HALT 1<<30
 #define MEC_STEP 1<<31
 
-#define DUMP_COUNT 0x100000
+#define DUMP_COUNT 0x10000
 int dumps[DUMP_COUNT];
 
 #define MAX_ADDR 0x100000
@@ -46,13 +46,48 @@ int main() {
   int dump;
   int gap;
   int ret;
+  int bak;
 
-  //pread(fd, &dump, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
-  //printf("%x\n", dump);
+  ret = pread(fd, &bak, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
+  printf("pread dump:%x ret:%d\n", bak, ret);
 
   int pfd = open("/sys/bus/pci/devices/0000:05:00.0/resource5", O_RDWR);
   printf("opened pfd %d\n", pfd);
   if (pfd < 0) return -1;
+  #define SZ 1024*1024
+  volatile unsigned int *a = (unsigned int*)mmap(0, SZ, PROT_READ, MAP_PRIVATE, pfd, 0);
+  printf("mapped %p\n", a);
+
+  dump = (0 << 8) | (0 << 4) | (1 << 2) | 0;
+  ret = pwrite(fd, &dump, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
+
+  /*for (int i = 0; i < 100; i++) {
+    ret = pread(fd, &dump, 4, (GC_BASE_ADDR + regCP_MEC1_INSTR_PNTR)*4);
+    if (ret != 4) break;
+    printf("address:0x%x\n", 4*dump);
+  }*/
+
+  printf("dump start\n");
+  for (int i = 0; i < DUMP_COUNT; i++) {
+    dumps[i] = a[GC_BASE_ADDR + regCP_MEC1_INSTR_PNTR];
+  }
+  printf("dump end\n");
+
+
+  ret = pwrite(fd, &bak, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
+  printf("restored\n");
+
+  //pread(fd, &dump, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
+  //printf("%x\n", dump);
+  for (int i = 0; i < DUMP_COUNT; i++) {
+    histogram[dumps[i]]++;
+  }
+  for (int i = 0; i < MAX_ADDR; i++) {
+    if (histogram[i] != 0) printf("%8x : %d\n", i*4, histogram[i]);
+  }
+
+  return 0;
+
 
   /*
   regGRBM_GFX_CNTL 0 0x22 4 0 0
@@ -62,7 +97,9 @@ int main() {
         QUEUEID 8 10
   */
 
-  for (int meid = 0; meid < 4; meid++) {
+  int meid = 0;
+
+  /*for (int meid = 0; meid < 4; meid++) {
     dump = (0 << 8) | (0 << 4) | (meid << 2) | 1;
     ret = pwrite(fd, &dump, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
     printf("pwrite dump:%x ret:%d\n", dump, ret);
@@ -74,9 +111,10 @@ int main() {
     ret = pread(fd, &dump, 4, (GC_BASE_ADDR + regCP_MEC2_INSTR_PNTR)*4);
     if (ret != 4) { printf("READ FAILED"); return -1; }
     printf("addr2 0x%x\n", dump*4);
-  }
+  }*/
 
-  dump = 1;
+  //dump = 1;
+  dump = (0 << 8) | (0 << 4) | (meid << 2) | 1;
   ret = pwrite(fd, &dump, 4, (GC_BASE_ADDR + regGRBM_GFX_CNTL)*4);
   printf("pwrite dump:%x ret:%d\n", dump, ret);
 
@@ -97,9 +135,9 @@ int main() {
   // 0x85fc000000
   //#define SZ 32LL*1024*1024*1024
   //#define SZ 256*1024*1024
-  #define SZ 1024*1024
+  /*#define SZ 1024*1024
   volatile unsigned int *a = (unsigned int*)mmap(0, SZ, PROT_READ, MAP_PRIVATE, pfd, 0);
-  printf("mapped %p\n", a);
+  printf("mapped %p\n", a);*/
 
 
   printf("dump start\n");
@@ -123,18 +161,9 @@ int main() {
     //pread(fd, &dumps[i], 4, (GC_BASE_ADDR + regCP_MEC_RS64_INSTR_PNTR)*4);
   }*/
 
-  gap = 0;
   for (int i = 0; i < DUMP_COUNT; i++) {
-    /*if (dumps[i]*4 != 0x24794) {
-      if (gap) {
-        printf("(%d skipped)\n", gap);
-        gap = 0;
-      }
-      printf("0x%8X\n", dumps[i]*4);
-    } else gap++;*/
     histogram[dumps[i]]++;
   }
-
   for (int i = 0; i < MAX_ADDR; i++) {
     if (histogram[i] != 0) printf("%8x : %d\n", i*4, histogram[i]);
   }
