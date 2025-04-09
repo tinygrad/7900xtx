@@ -1,3 +1,6 @@
+# AMD GPU Codenames
+[https://www.techpowerup.com/forums/threads/amd-graphics-ip.243974/](https://web.archive.org/web/20231209152620/https://www.techpowerup.com/forums/threads/amd-graphics-ip.243974/)
+
 # Documentation for the 7900XTX
 aka Navi31 aka gfx1100 aka Plum Bonito aka amd744c
 
